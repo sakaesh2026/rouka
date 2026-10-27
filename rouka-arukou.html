@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#3D6A62">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ろうか あるこう">
+<meta name="format-detection" content="telephone=no">
+<title>ろうか あるこう</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@700;900&display=swap">
+<style>
+/* ===== 色と文字（ここを変えると全体の見た目が変わります） ===== */
+:root{
+  --ink:#1F2D2B; --ink-2:#4A5A57; --wall:#E4ECE8; --paper:#FFFFFF; --rule:#C5D3CD;
+  --sign:#1F5FA8; --sign-dark:#164A84; --floor:#3D6A62;
+  --still:#8A9894; --still-tint:#DDE4E1; --walk:#4E9A78; --walk-tint:#CFE8DA;
+  --amber:#E39A22; --amber-tint:#F9DDA8; --redpen:#D8463B;
+  --ok:#2F7D57; --warn:#A76300; --bad:#B23A2E;
+  --ui:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;
+  --round:"Zen Maru Gothic","Hiragino Maru Gothic ProN","BIZ UDPGothic","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--wall);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.7;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body.monitoring{overflow:hidden}
+body.monitoring .wrap{display:none}
+
+/* ===== 設定画面（先生用） ===== */
+.wrap{max-width:560px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 16px calc(56px + env(safe-area-inset-bottom))}
+.alert-bar{margin:8px 0 16px;padding:12px 14px;border-left:6px solid var(--bad);border-radius:8px;background:#FBE6E3;color:#7A231B;font-size:15px;line-height:1.6}
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;margin-top:8px}
+.hero h1{margin:0;font-family:var(--round);font-weight:900;font-size:clamp(38px,12.5vw,62px);line-height:1.04;letter-spacing:.02em;color:var(--floor)}
+.lead{margin:14px 0 0;font-size:15.5px;line-height:1.65;color:var(--ink-2)}
+.preview{position:relative;display:block;width:104px;aspect-ratio:9/17;padding:0;border:3px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--m-floor);cursor:pointer}
+.preview .hall-slot{position:absolute;inset:0}
+.preview .actor{position:absolute;left:50%;top:31%;width:60%;aspect-ratio:200/220;transform:translateX(-50%)}
+.preview .actor svg{position:absolute;inset:0;width:100%;height:100%}
+.preview-cap{display:block;margin-top:6px;text-align:center;font-size:12px;color:var(--ink-2)}
+
+.btn-start{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:70px;margin:22px 0 0;padding:10px 16px;border:0;border-radius:16px;background:var(--sign);color:#fff;font-size:21px;font-weight:700;letter-spacing:.04em;box-shadow:0 4px 0 var(--sign-dark);cursor:pointer}
+.btn-start:active{transform:translateY(3px);box-shadow:0 1px 0 var(--sign-dark)}
+.start-ic{display:block;width:30px;height:34px;flex:none}
+.start-ic svg{display:block;width:100%;height:100%}
+.start-note{margin:12px 2px 0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+
+.checks{list-style:none;margin:20px 0 0;padding:0;border-top:1px solid var(--rule)}
+.checks li{display:flex;gap:12px;align-items:flex-start;padding:10px 2px;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.5}
+.checks i{flex:none;display:grid;place-items:center;width:24px;height:24px;margin-top:1px;border-radius:50%;background:var(--still);color:#fff;font-style:normal;font-weight:700;font-size:14px}
+.checks li[data-st=ok] i{background:var(--ok)}
+.checks li[data-st=ok] i::before{content:"✓"}
+.checks li[data-st=warn] i{background:var(--warn)}
+.checks li[data-st=warn] i::before{content:"!"}
+.checks li[data-st=bad] i{background:var(--bad)}
+.checks li[data-st=bad] i::before{content:"×"}
+.checks li[data-st=unknown] i::before{content:"?"}
+.checks small{display:block;margin-top:2px;font-size:13.5px;color:var(--ink-2)}
+
+.sec{margin-top:40px}
+.sec h2{margin:0 0 14px;padding-bottom:8px;border-bottom:3px solid var(--floor);font-size:20px;line-height:1.4;font-weight:700}
+.field{margin-top:20px}
+.label{display:block;margin-bottom:8px;font-weight:700;font-size:15.5px}
+.hint{margin:6px 0 0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+
+.seg{display:flex;border:2px solid var(--sign);border-radius:12px;overflow:hidden;background:var(--paper)}
+.seg button{flex:1;min-height:46px;padding:6px 4px;border:0;border-left:2px solid var(--sign);background:transparent;color:var(--sign);font-weight:700;font-size:15.5px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed=true]{background:var(--sign);color:#fff}
+
+input[type=text],select{width:100%;min-height:50px;padding:10px 14px;border:2px solid var(--rule);border-radius:12px;background:var(--paper);font-size:18px}
+input[type=text]:focus,select:focus{border-color:var(--sign);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chips button{min-height:38px;padding:5px 14px;border:1.5px solid var(--floor);border-radius:999px;background:transparent;color:var(--floor);font-size:15px;cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--floor);color:#fff}
+
+.sw-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px}
+.sw-row label{font-weight:700;font-size:15.5px;line-height:1.5}
+.sw{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:58px;height:34px;margin:0;border-radius:999px;background:#B5C2BD;cursor:pointer;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .2s}
+.sw:checked{background:var(--ok)}
+.sw:checked::after{transform:translateX(24px)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:8px 14px;border:2px solid var(--sign);border-radius:12px;background:var(--paper);color:var(--sign);font-weight:700;font-size:16px;line-height:1.3;cursor:pointer}
+.btn:active{background:#E3ECF6}
+.btn[disabled]{opacity:.38;cursor:default}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn.small{min-height:40px;padding:6px 12px;font-size:14.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.linkbtn{margin-top:8px;padding:6px 0;border:0;background:none;color:var(--sign);font-size:14px;text-decoration:underline;cursor:pointer}
+
+input[type=range].plain{width:100%;height:36px;margin:0;accent-color:var(--sign)}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-2)}
+
+/* いまのゆれメーター */
+.meter-card{padding:16px 14px 14px;border-radius:14px;background:var(--paper)}
+.meter-read{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-height:32px}
+.mstate{font-family:var(--round);font-weight:900;font-size:22px;line-height:1.3;color:var(--ink-2)}
+.mstate[data-s=walk]{color:var(--walk)}
+.mstate[data-s=run]{color:#B86E00}
+.mval{font-size:15px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.meter{position:relative;height:64px;margin-top:6px;--th:28px}
+.m-track{position:absolute;left:calc(var(--th) / 2);right:calc(var(--th) / 2);top:12px;height:40px;border-radius:8px;overflow:hidden;background:var(--still-tint)}
+.m-zone{position:absolute;top:0;bottom:0}
+.z-still{left:0;background:var(--still-tint)}
+.z-walk{background:var(--walk-tint)}
+.z-run{background:var(--amber-tint)}
+.m-fill{position:absolute;left:0;top:10px;bottom:10px;width:0;border-radius:0 6px 6px 0;background:var(--still);transition:width .1s linear}
+.m-fill[data-s=walk]{background:var(--walk)}
+.m-fill[data-s=run]{background:var(--amber)}
+.meter input[type=range]{-webkit-appearance:none;appearance:none;position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;background:transparent;cursor:pointer}
+.meter input[type=range]::-webkit-slider-runnable-track{height:64px;background:transparent;border:0}
+.meter input[type=range]::-moz-range-track{height:64px;background:transparent;border:0}
+.meter input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:var(--th);height:64px;border:0;background:radial-gradient(circle at 50% 8px,var(--ink) 7px,transparent 7.5px),radial-gradient(circle at 50% 56px,var(--ink) 7px,transparent 7.5px),linear-gradient(90deg,transparent 11px,var(--ink) 11px,var(--ink) 17px,transparent 17px)}
+.meter input[type=range]::-moz-range-thumb{width:var(--th);height:64px;border:0;border-radius:0;background:radial-gradient(circle at 50% 8px,var(--ink) 7px,transparent 7.5px),radial-gradient(circle at 50% 56px,var(--ink) 7px,transparent 7.5px),linear-gradient(90deg,transparent 11px,var(--ink) 11px,var(--ink) 17px,transparent 17px)}
+.meter input[type=range]:focus-visible{outline:3px solid var(--sign);outline-offset:3px;border-radius:8px}
+.m-labels{position:relative;height:22px;margin:4px calc(var(--th, 28px) / 2) 0;font-size:13px;font-weight:700;color:var(--ink-2)}
+.m-labels span{position:absolute;top:0;white-space:nowrap}
+#lStill{left:0}
+#lWalk,#lRun{transform:translateX(-50%)}
+.m-help{margin:10px 0 0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.m-line{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.meter-card .btn{width:100%;margin-top:12px}
+.cal-result{margin:10px 0 0;font-size:14.5px;line-height:1.6}
+
+/* 先生の声 */
+.rec-row{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}
+.rec-name{font-weight:700;line-height:1.4}
+.rec-name small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-2)}
+.rec-row .rec-btn[data-on=true]{border-color:var(--bad);background:var(--bad);color:#fff}
+
+/* 記録 */
+.today{margin:0;font-size:16px}
+.today b{font-size:22px;font-family:var(--round);font-weight:900}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:14px;padding:12px 6px 8px;border-radius:12px;background:var(--paper)}
+.day{display:flex;flex-direction:column;align-items:center;min-width:0}
+.bars{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:84px;width:100%}
+.bar{position:relative;width:12px;min-height:2px;border-radius:3px 3px 0 0}
+.bar.run{background:var(--amber)}
+.bar.praise{background:var(--walk)}
+.week{position:relative}
+.week-empty{position:absolute;left:12px;right:12px;top:26px;margin:0;text-align:center;font-size:13.5px;color:var(--ink-2)}
+.bar b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:1px;font-size:11px;line-height:1.2;color:var(--ink);font-variant-numeric:tabular-nums}
+.day small{margin-top:4px;font-size:11px;line-height:1.3;text-align:center;color:var(--ink-2)}
+.day.is-today small{color:var(--ink);font-weight:700}
+.legend{display:flex;gap:16px;margin:8px 2px 0;font-size:13px;color:var(--ink-2)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px;background:var(--amber);vertical-align:-1px}
+.legend span+span::before{background:var(--walk)}
+.loglist{list-style:none;margin:14px 0 0;padding:0;max-height:260px;overflow:auto;border-top:1px solid var(--rule)}
+.loglist li{display:flex;gap:14px;padding:7px 2px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.loglist time{font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.loglist li[data-k=run]{font-weight:700}
+.loglist .empty{color:var(--ink-2)}
+
+/* 使い方 */
+details{border-bottom:1px solid var(--rule)}
+details:first-of-type{border-top:1px solid var(--rule)}
+summary{padding:14px 2px;font-weight:700;cursor:pointer;list-style-position:inside}
+details ol,details ul{margin:0 0 16px;padding-left:1.4em;font-size:14.5px;line-height:1.75}
+details li+li{margin-top:6px}
+.foot{margin-top:32px;font-size:12.5px;line-height:1.6;color:var(--ink-2)}
+
+/* ===== 子どもの画面 ===== */
+.skin{--m-floor:#3D6A62;--m-ceil:#2B4B46;--m-wall-l:#345B54;--m-wall-r:#2F544E;--m-back:#4D7E74;--m-seam:rgba(255,255,255,.10);--m-door:rgba(10,30,28,.16);--m-light:rgba(255,255,255,.10);--m-window:rgba(255,255,255,.14);--m-ink:#F4FAF7;color:var(--m-ink)}
+.skin[data-state=alert]{--m-floor:#F2B544;--m-ceil:#DE9A26;--m-wall-l:#E9A733;--m-wall-r:#E4A02D;--m-back:#F7CA6B;--m-seam:rgba(110,70,0,.16);--m-door:rgba(110,70,0,.12);--m-light:rgba(255,255,255,.28);--m-window:rgba(255,255,255,.3);--m-ink:#2B2005}
+.skin[data-state=praise]{--m-floor:#F2F8F4;--m-ceil:#D8E7DE;--m-wall-l:#E4EFE8;--m-wall-r:#DEEBE3;--m-back:#F8FCF9;--m-seam:rgba(30,70,55,.08);--m-door:rgba(30,70,55,.07);--m-light:rgba(255,255,255,.7);--m-window:rgba(160,200,185,.25);--m-ink:#1F2D2B}
+.skin[data-state=pause]{--m-floor:#59666D;--m-ceil:#434F55;--m-wall-l:#4E5B62;--m-wall-r:#49565D;--m-back:#66747C;--m-seam:rgba(255,255,255,.07);--m-door:rgba(0,0,0,.12);--m-light:rgba(255,255,255,.07);--m-window:rgba(255,255,255,.1);--m-ink:#E9EEF0}
+.hall{display:block;width:100%;height:100%}
+.hall .h-floor{fill:var(--m-floor)}
+.hall .h-ceil{fill:var(--m-ceil)}
+.hall .h-wl{fill:var(--m-wall-l)}
+.hall .h-wr{fill:var(--m-wall-r)}
+.hall .h-back{fill:var(--m-back)}
+.hall .h-door{fill:var(--m-door)}
+.hall .h-light{fill:var(--m-light)}
+.hall .h-win{fill:var(--m-window)}
+.hall .h-seam{fill:none;stroke:var(--m-seam);stroke-width:2}
+.hall .h-base{fill:none;stroke:var(--m-seam);stroke-width:3}
+.hall *{transition:fill .6s ease,stroke .6s ease}
+
+.figure{color:var(--m-ink);transition:color .5s ease}
+.figure .back{opacity:.5}
+.figure .limb{transform-box:view-box}
+.figure .leg{transform-origin:98px 130px}
+.figure .arm{transform-origin:101px 76px}
+.figure .leg.f{transform:rotate(-16deg)}
+.figure .leg.b{transform:rotate(16deg)}
+.figure .arm.f{transform:rotate(18deg)}
+.figure .arm.b{transform:rotate(-18deg)}
+.figure.walking .leg.f,.figure.walking .arm.b{animation:fwdback 1.3s ease-in-out infinite}
+.figure.walking .leg.b,.figure.walking .arm.f{animation:backfwd 1.3s ease-in-out infinite}
+.figure.walking .body{animation:bob .65s ease-in-out infinite}
+@keyframes fwdback{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
+@keyframes backfwd{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.hanamaru{display:none}
+.hanamaru path{fill:none;stroke:var(--redpen);stroke-linecap:round;stroke-linejoin:round}
+[data-state=praise] .hanamaru{display:block}
+[data-state=praise] .figure{display:none}
+
+#monitor{position:fixed;inset:0;z-index:20;overflow:hidden;background:var(--m-floor);font-family:var(--round);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#monitor .hall-slot{position:absolute;inset:0}
+.mon-top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:16px;display:flex;align-items:center;gap:8px;font-family:var(--ui);font-size:14px;font-weight:700;opacity:.85}
+.beat{width:10px;height:10px;border-radius:50%;background:currentColor;animation:beat 2s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:.35}50%{opacity:1}}
+.beat.stalled{animation:none;background:#E25C4F;opacity:1}
+.mon-stage{position:absolute;left:0;right:0;top:26%;display:flex;flex-direction:column;align-items:center}
+#monitor .actor{position:relative;width:min(56vw,31vh);aspect-ratio:200/220}
+#monitor .actor svg{position:absolute;inset:0;width:100%;height:100%}
+.mon-text{max-width:20em;margin:3vh 16px 0;text-align:center;font-weight:900;font-size:clamp(34px,10.5vw,80px);line-height:1.3;letter-spacing:.06em;word-break:keep-all;overflow-wrap:anywhere}
+#monitor[data-state=alert] .mon-text{font-size:clamp(40px,12.5vw,96px)}
+.mon-sub{margin:1.5vh 0 0;font-family:var(--ui);font-weight:700;font-size:clamp(20px,6vw,36px);font-variant-numeric:tabular-nums}
+.mon-warn{position:absolute;left:16px;right:104px;bottom:calc(22px + env(safe-area-inset-bottom));margin:0;padding:10px 12px;border-radius:10px;background:rgba(178,58,46,.94);color:#fff;font-family:var(--ui);font-size:14px;font-weight:700;line-height:1.5}
+.teacher-btn{position:absolute;right:calc(14px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));width:76px;height:76px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.16);color:var(--m-ink);touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.teacher-btn svg{position:absolute;left:2px;top:2px;width:72px;height:72px}
+.ring-bg{fill:none;stroke:currentColor;stroke-opacity:.25;stroke-width:4}
+.ring{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-dasharray:207.35;stroke-dashoffset:207.35;transform:rotate(-90deg);transform-origin:36px 36px}
+.lock{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round}
+.lock-body{fill:currentColor}
+.tb-label{position:absolute;left:0;right:0;bottom:10px;font-family:var(--ui);font-size:10px;font-weight:700;line-height:1;text-align:center}
+
+/* 先生メニュー */
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(15,25,23,.55)}
+.sheet-panel{width:100%;max-width:560px;padding:20px 16px calc(20px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;background:var(--paper);color:var(--ink);font-family:var(--ui)}
+.sheet-panel h2{margin:0;font-size:20px}
+.sheet-panel p{margin:4px 0 14px;font-size:14.5px;color:var(--ink-2)}
+.sheet-panel .btn{width:100%;margin-top:10px}
+.sheet-panel .btn.primary{border-color:var(--sign);background:var(--sign);color:#fff}
+.sheet-panel .two .btn{margin-top:0}
+
+/* はかる画面 */
+.calib{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:var(--floor);color:#fff;text-align:center}
+.cal-title{margin:0;font-size:20px;font-weight:700}
+.cal-count{margin:8px 0;font-family:var(--round);font-weight:900;font-size:min(44vw,220px);line-height:1;font-variant-numeric:tabular-nums}
+.cal-msg{margin:0;max-width:22em;font-family:var(--round);font-weight:700;font-size:clamp(20px,6vw,30px);line-height:1.5}
+.cal-bar{width:min(80vw,360px);height:10px;margin-top:24px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.2)}
+.cal-bar span{display:block;width:0;height:100%;background:#fff}
+.calib .btn{margin-top:28px;border-color:#fff;background:transparent;color:#fff}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:60;max-width:calc(100% - 32px);padding:12px 18px;border-radius:12px;background:var(--ink);color:#fff;font-size:15px;line-height:1.5;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){
+  .figure.walking .limb,.figure.walking .body,.beat{animation:none!important}
+  .hall *,.figure,.m-fill,.toast{transition:none!important}
+}
+</style>
+</head>
+<body>
+<noscript><p style="padding:16px">このアプリを使うには JavaScript を有効にしてください。</p></noscript>
+
+<!-- ===================== 設定画面（先生用） ===================== -->
+<main class="wrap" id="setup">
+  <p class="alert-bar" id="httpsBar" hidden>このページは <b>https://</b> で開かれていないため、スマホの動きセンサーが使えません。GitHub Pages など、https:// で始まるアドレスで開いてください。</p>
+
+  <header class="hero">
+    <h1>ろうか<br>あるこう</h1>
+    <div>
+      <button class="preview skin" id="preview" data-state="watch" type="button" aria-label="子どもの画面の見本。タップすると、注意とほめる画面を順に見られます">
+        <span class="hall-slot"></span>
+        <span class="actor"></span>
+      </button>
+      <span class="preview-cap">タップで見本</span>
+    </div>
+  </header>
+  <p class="lead">廊下で走ると、スマホが声で知らせます。歩けたら、はなまるでほめます。</p>
+
+  <button class="btn-start" id="startBtn" type="button"><span class="start-ic" id="startIcon" aria-hidden="true"></span>見守りをはじめる</button>
+  <p class="start-note">はじめの5秒は、スマホを持たせる時間として鳴りません。止めるときは、子どもの画面の右下にある かぎのボタンを2秒おしつづけます。</p>
+
+  <ul class="checks" id="checks" aria-label="準備のチェック">
+    <li data-k="https"></li>
+    <li data-k="motion"></li>
+    <li data-k="speech"></li>
+    <li data-k="wake"></li>
+    <li data-k="calib"></li>
+  </ul>
+
+  <!-- 走りの見分け方 -->
+  <section class="sec" aria-labelledby="hDetect">
+    <h2 id="hDetect">走りの見分け方</h2>
+    <div class="meter-card">
+      <div class="meter-read"><span class="mstate" id="mState">センサーはオフです</span><span class="mval" id="mVal"></span></div>
+      <div class="meter">
+        <div class="m-track">
+          <div class="m-zone z-still" id="zStill"></div>
+          <div class="m-zone z-walk" id="zWalk"></div>
+          <div class="m-zone z-run" id="zRun"></div>
+          <div class="m-fill" id="mFill"></div>
+        </div>
+        <input type="range" id="thr" min="0" max="12" step="0.1" aria-label="判定ライン（左ほど鳴りやすい）">
+      </div>
+      <div class="m-labels" aria-hidden="true"><span id="lStill">とまる</span><span id="lWalk">あるく</span><span id="lRun">はしる</span></div>
+      <p class="m-help">ゆれが黒い線（判定ライン <span class="m-line" id="thrOut"></span>）より右に続くと「走った」と判断します。線は指で動かせます。左ほど鳴りやすくなります。</p>
+      <button class="btn" id="sensorBtn" type="button">センサーをオンにして見る</button>
+    </div>
+
+    <div class="field">
+      <span class="label" id="lbPreset">きびしさ</span>
+      <div class="seg" data-key="preset" role="group" aria-labelledby="lbPreset">
+        <button type="button" data-v="6">ゆるめ</button><button type="button" data-v="4.5">ふつう</button><button type="button" data-v="3.5">きびしめ</button>
+      </div>
+      <p class="hint">きびしめにすると、少しの走りでも鳴ります。</p>
+    </div>
+
+    <div class="field">
+      <span class="label">はかって合わせる（おすすめ）</span>
+      <p class="hint">子どもが持つのと同じ場所（首かけポーチ・ポケットなど）にスマホを入れて、まず「歩いてはかる」、次に「走ってはかる」。判定ラインが自動で決まります。子どもに持たせてはかるのがいちばん正確ですが、先生が持ってはかっても使えます。</p>
+      <div class="two"><button class="btn" id="calWalk" type="button">歩いてはかる</button><button class="btn" id="calRun" type="button">走ってはかる</button></div>
+      <p class="cal-result" id="calResult"></p>
+      <button class="linkbtn" id="calClear" type="button" hidden>はかった値を消す</button>
+    </div>
+
+    <div class="field">
+      <span class="label" id="lbHold">声が出るまで（走りが続いた時間）</span>
+      <div class="seg" data-key="holdSec" role="group" aria-labelledby="lbHold">
+        <button type="button" data-v="0.5">0.5秒</button><button type="button" data-v="1">1秒</button><button type="button" data-v="2">2秒</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label" id="lbCool">次の声まで、あける時間</span>
+      <div class="seg" data-key="coolSec" role="group" aria-labelledby="lbCool">
+        <button type="button" data-v="3">3秒</button><button type="button" data-v="5">5秒</button><button type="button" data-v="8">8秒</button><button type="button" data-v="12">12秒</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ことば -->
+  <section class="sec" aria-labelledby="hVoice">
+    <h2 id="hVoice">流すことば</h2>
+    <div class="field">
+      <label class="label" for="phrase">走ったときのことば</label>
+      <input type="text" id="phrase" maxlength="30" autocomplete="off" enterkeyhint="done">
+      <div class="chips" data-for="phrase">
+        <button type="button">あるきます</button><button type="button">ろうかは あるきます</button><button type="button">ゆっくり あるこうね</button><button type="button">とまって、あるきます</button>
+      </div>
+      <p class="hint">ひらがなで、ことばの間にスペースを入れると、子どもの画面で読みやすく表示されます。</p>
+    </div>
+    <div class="field">
+      <label class="label" for="voiceSel">声の種類</label>
+      <select id="voiceSel"><option value="">おまかせ</option></select>
+    </div>
+    <div class="field">
+      <label class="label" for="rate">話す速さ：<span id="rateOut"></span></label>
+      <input type="range" class="plain" id="rate" min="0.6" max="1.3" step="0.05">
+      <div class="ends" aria-hidden="true"><span>ゆっくり</span><span>はやい</span></div>
+    </div>
+    <div class="field">
+      <span class="label" id="lbRepeat">くりかえし</span>
+      <div class="seg" data-key="repeat" role="group" aria-labelledby="lbRepeat">
+        <button type="button" data-v="1">1回</button><button type="button" data-v="2">2回</button>
+      </div>
+    </div>
+    <div class="sw-row"><label for="chime">ことばの前にチャイム（ピンポーン）</label><input type="checkbox" class="sw" id="chime"></div>
+    <div class="sw-row"><label for="vibrate">ブルブルもする（Androidのみ）</label><input type="checkbox" class="sw" id="vibrate"></div>
+    <div class="two"><button class="btn" id="testAlert" type="button">注意をためす</button><button class="btn" id="testPraise" type="button">ほめるをためす</button></div>
+  </section>
+
+  <!-- ほめる -->
+  <section class="sec" aria-labelledby="hPraise">
+    <h2 id="hPraise">ほめる</h2>
+    <div class="sw-row"><label for="praiseOn">走ったあと、歩けたらほめる</label><input type="checkbox" class="sw" id="praiseOn"></div>
+    <p class="hint">声を出したあと30秒以内に、4秒ほど歩けたら、はなまると声でほめます。</p>
+    <div class="field">
+      <label class="label" for="praisePhrase">ほめることば</label>
+      <input type="text" id="praisePhrase" maxlength="30" autocomplete="off" enterkeyhint="done">
+      <div class="chips" data-for="praisePhrase">
+        <button type="button">じょうずに あるけたね</button><button type="button">あるけたね、はなまる</button><button type="button">かっこいい あるきかた</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 先生の声 -->
+  <section class="sec" aria-labelledby="hRec">
+    <h2 id="hRec">先生の声で流す</h2>
+    <div id="recRows">
+      <div class="rec-row" data-kind="alert">
+        <span class="rec-name">注意の声<small></small></span>
+        <button class="btn small rec-btn" type="button">録音</button>
+        <button class="btn small play-btn" type="button">再生</button>
+        <button class="btn small danger del-btn" type="button">消す</button>
+      </div>
+      <div class="rec-row" data-kind="praise">
+        <span class="rec-name">ほめる声<small></small></span>
+        <button class="btn small rec-btn" type="button">録音</button>
+        <button class="btn small play-btn" type="button">再生</button>
+        <button class="btn small danger del-btn" type="button">消す</button>
+      </div>
+      <div class="sw-row"><label for="useRec">録音した声を使う</label><input type="checkbox" class="sw" id="useRec"></div>
+      <p class="hint">1つ5秒まで。録音すると、自動でオンになります。録音がないほうは、読み上げの声になります。iPhoneで録音のあと音が小さくなったときは、ページを読み込み直してください（録音は残ります）。</p>
+    </div>
+    <p class="hint" id="recNo" hidden>このブラウザでは録音が使えません。</p>
+  </section>
+
+  <!-- 記録 -->
+  <section class="sec" aria-labelledby="hLog">
+    <h2 id="hLog">記録</h2>
+    <p class="today" id="logToday"></p>
+    <div class="week" id="week"></div>
+    <div class="legend" aria-hidden="true"><span>声を出した</span><span>ほめた</span></div>
+    <ol class="loglist" id="logList" aria-label="きょうの記録"></ol>
+    <div class="two"><button class="btn" id="csvBtn" type="button">CSVで保存</button><button class="btn danger" id="clearLog" type="button">記録を消す</button></div>
+  </section>
+
+  <!-- 使い方 -->
+  <section class="sec" aria-labelledby="hHelp">
+    <h2 id="hHelp">使い方と注意</h2>
+    <details>
+      <summary>はじめての準備</summary>
+      <ol>
+        <li>このファイルを GitHub Pages などにのせ、https:// で始まるアドレスを、iPhoneは Safari、Androidは Chrome で開きます。</li>
+        <li>マナーモード（消音）を切り、音量を大きくします。「注意をためす」で聞こえるか確かめます。</li>
+        <li>「歩いてはかる」「走ってはかる」で、判定ラインを合わせます。</li>
+        <li>「見守りをはじめる」をおして、子どもに持たせます。</li>
+        <li>止めるときや休むときは、右下の かぎのボタンを2秒おしつづけて、先生メニューを開きます。</li>
+      </ol>
+    </details>
+    <details>
+      <summary>うまくいかないとき</summary>
+      <ul>
+        <li><b>声が出ない：</b>マナーモードと音量を確かめてください。iPhoneはページを読み込み直すと直ることがあります。</li>
+        <li><b>走っても鳴らない：</b>判定ラインを左へ動かすか「きびしめ」に。「声が出るまで」を短くします。</li>
+        <li><b>歩いているだけで鳴る：</b>判定ラインを右へ動かすか「ゆるめ」に。首かけで大きくゆれるときは、ポーチを体に近づけます。</li>
+        <li><b>センサーの値が届かない：</b>https で開いているか確かめます。iPhoneで「許可しない」をおしたときは、Safariのタブを閉じて開き直し、もう一度ボタンをおします。</li>
+        <li><b>画面が消えてしまう：</b>iPhoneは 設定 → 画面表示と明るさ → 自動ロック → なし。Androidは画面消灯までの時間を長くします。</li>
+      </ul>
+    </details>
+    <details>
+      <summary>子どもに持たせるときのコツ</summary>
+      <ul>
+        <li>iPhoneは「アクセスガイド」（設定 → アクセシビリティ → アクセスガイド）で、このページから出られないようにできます。オプションの「モーション」は、オンのままにしてください。</li>
+        <li>Androidは「アプリ固定（画面の固定）」が使えます（端末によって設定の場所がちがいます）。</li>
+        <li>iPhoneは「シェイクで取り消し」（設定 → アクセシビリティ → タッチ）をオフにすると、走ったときに「取り消す」の表示が出るのを防げます。</li>
+        <li>持たせる場所は毎回同じにします。場所を変えたら、はかり直してください。</li>
+        <li>声がおもしろくて、わざと走ったりスマホをゆらしたりする様子があるときは、チャイムを切る、ことばを短くする、ほめる声を中心にする、などを試してください。</li>
+        <li>体育や休み時間は、先生メニューの「休む」で止められます。</li>
+        <li>画面をつけたままにするので、電池を多く使います。充電してから使ってください。</li>
+      </ul>
+    </details>
+  </section>
+
+  <p class="foot">設定・記録・録音は、このスマホの中だけに保存されます。どこにも送信しません。<br>ろうか あるこう v1.0</p>
+</main>
+
+<!-- ===================== 子どもの画面 ===================== -->
+<div id="monitor" class="skin" data-state="watch" hidden>
+  <div class="hall-slot"></div>
+  <div class="mon-top"><span class="beat" id="beat"></span><span>みまもりちゅう</span></div>
+  <div class="mon-stage">
+    <div class="actor"></div>
+    <p class="mon-text" id="monText">ろうかは あるこうね</p>
+    <p class="mon-sub" id="monSub"></p>
+  </div>
+  <p class="mon-warn" id="monWarn" hidden>センサーの値が届いていません。画面をつけたまま、ページを開きなおしてください。</p>
+  <button class="teacher-btn" id="teacherBtn" type="button" aria-label="先生メニュー（2秒おしつづける）">
+    <svg viewBox="0 0 72 72" aria-hidden="true">
+      <circle class="ring-bg" cx="36" cy="36" r="33"/>
+      <circle class="ring" cx="36" cy="36" r="33"/>
+      <path class="lock" d="M28.5 33v-5a7.5 7.5 0 0 1 15 0v5"/>
+      <rect class="lock-body" x="24.5" y="32" width="23" height="17" rx="3.5"/>
+    </svg>
+    <span class="tb-label">ながおし</span>
+  </button>
+</div>
+
+<!-- 先生メニュー -->
+<div class="sheet" id="menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle" hidden>
+  <div class="sheet-panel">
+    <h2 id="menuTitle">先生メニュー</h2>
+    <p id="menuInfo"></p>
+    <button class="btn primary" type="button" data-act="continue" id="mContinue">見守りをつづける</button>
+    <div class="two" id="mPauseRow"><button class="btn" type="button" data-act="p10">10分 休む</button><button class="btn" type="button" data-act="p30">30分 休む</button></div>
+    <button class="btn" type="button" data-act="resume" id="mResume" hidden>いますぐ再開する</button>
+    <button class="btn danger" type="button" data-act="end" id="mEnd">終了して設定にもどる</button>
+  </div>
+</div>
+
+<!-- はかる画面 -->
+<div class="calib" id="calib" role="dialog" aria-modal="true" aria-labelledby="calTitle" hidden>
+  <p class="cal-title" id="calTitle"></p>
+  <p class="cal-count" id="calCount"></p>
+  <p class="cal-msg" id="calMsg"></p>
+  <div class="cal-bar"><span id="calBar"></span></div>
+  <button class="btn" id="calCancel" type="button">やめる</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const nowS = () => performance.now() / 1000;
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ========== 保存（このスマホの中だけ） ========== */
+const KEY = 'rouka-arukou:';
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  raw(k) { try { return localStorage.getItem(KEY + k); } catch (e) { return null; } },
+  setRaw(k, v) { try { localStorage.setItem(KEY + k, v); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem(KEY + k); } catch (e) { /* なにもしない */ } }
+};
+
+/* ========== はじめの設定（ここを書きかえると、最初の値が変わります） ========== */
+const DEFAULTS = Object.freeze({
+  threshold: 4.5,                 // 判定ライン（大きいほど鳴りにくい）
+  holdSec: 1,                     // 走りが何秒続いたら声を出すか
+  coolSec: 5,                     // 次の声まであける秒数
+  phrase: 'ろうかは あるきます',     // 走ったときのことば
+  praisePhrase: 'じょうずに あるけたね',
+  praiseOn: true, voiceURI: '', rate: 0.9, repeat: 1,
+  chime: true, vibrate: true, useRec: false,
+  walkLevel: 0, runLevel: 0
+});
+const cfg = Object.assign({}, DEFAULTS, LS.get('cfg', {}) || {});
+cfg.threshold = clamp(Number(cfg.threshold) || DEFAULTS.threshold, 1.5, 12);
+cfg.holdSec = [0.5, 1, 2].includes(Number(cfg.holdSec)) ? Number(cfg.holdSec) : DEFAULTS.holdSec;
+cfg.coolSec = [3, 5, 8, 12].includes(Number(cfg.coolSec)) ? Number(cfg.coolSec) : DEFAULTS.coolSec;
+cfg.repeat = Number(cfg.repeat) === 2 ? 2 : 1;
+cfg.rate = clamp(Number(cfg.rate) || DEFAULTS.rate, 0.6, 1.3);
+if (typeof cfg.phrase !== 'string' || !cfg.phrase.trim()) cfg.phrase = DEFAULTS.phrase;
+if (typeof cfg.praisePhrase !== 'string' || !cfg.praisePhrase.trim()) cfg.praisePhrase = DEFAULTS.praisePhrase;
+function saveCfg() { LS.set('cfg', cfg); }
+
+// === DETECTOR START ===
+/* ---------- 走りの判定（センサーの数字だけを使う部分） ----------
+   ・スマホの加速度の大きさから重力の分を引き、「ゆれ」を取り出す
+   ・1.2秒間のゆれの強さ（RMS）が判定ラインをこえ、
+     強い一歩（ピーク）が2.5秒に3回以上あれば「はしっている」
+   ・単発の衝撃（ぶつけた・落とした）は一歩が足りないので鳴らない
+   ・「はしっている」が holdSec 秒続いたら 'run' を出す（そのあと coolSec 秒は出さない）
+   ・'run' のあと30秒以内に、4秒ほど歩けたら 'praise' を出す */
+function createDetector(options) {
+  const o = Object.assign({
+    threshold: 4.5, holdSec: 1.0, coolSec: 5,
+    walkMin: 0.7, rmsWin: 1.2, peakWin: 2.5,
+    runPeaks: 3, walkPeaks: 2, strongRatio: 1.2, refractory: 0.2,
+    praiseWalkSec: 4, praiseWindowSec: 30
+  }, options || {});
+  let buf, peaks, gEst, smooth, lastT, ex, lastRms, runAcc, walkAcc, coolUntil, suppressUntil, praiseUntil, lastTick, cur;
+  function reset() {
+    buf = []; peaks = []; gEst = null; smooth = 0; lastT = null; ex = null; lastRms = 0;
+    runAcc = 0; walkAcc = 0; coolUntil = 0; suppressUntil = 0; praiseUntil = 0; lastTick = null;
+    cur = { state: 'nodata', rms: 0, cadence: 0, peaks: 0, strong: 0 };
+  }
+  reset();
+  function push(t, m) {
+    if (!(m > 0 && m < 300)) return;                       // おかしな値はすてる
+    if (gEst === null) { gEst = m; lastT = t; return; }
+    let dt = t - lastT;
+    if (dt <= 0) return;
+    lastT = t;
+    if (dt > 0.25) dt = 0.25;                                // とぎれたあとの大きなすき間
+    gEst += (m - gEst) * (1 - Math.exp(-dt / 1.0));          // 重力の分（ゆっくり追いかける）
+    smooth += ((m - gEst) - smooth) * (1 - Math.exp(-dt / 0.03)); // 細かいふるえをならす
+    buf.push({ t: t, v: smooth });
+    while (buf.length && buf[0].t < t - o.rmsWin) buf.shift();
+    // 一歩（ピーク）を見つける
+    const hi = Math.max(0.6, 0.5 * lastRms), lo = hi * 0.3;
+    if (!ex) {
+      if (smooth > hi) ex = { t: t, max: smooth, merge: peaks.length > 0 && t - peaks[peaks.length - 1].t < o.refractory };
+    } else {
+      if (smooth > ex.max) ex.max = smooth;
+      if (smooth < lo || t - ex.t > 0.6) {
+        if (ex.merge) { const last = peaks[peaks.length - 1]; if (last && ex.max > last.amp) last.amp = ex.max; }
+        else peaks.push({ t: ex.t, amp: ex.max });
+        ex = null;
+      }
+    }
+    while (peaks.length && peaks[0].t < t - o.peakWin) peaks.shift();
+  }
+  function tick(t) {
+    const events = [];
+    let dt = lastTick === null ? 0 : t - lastTick;
+    lastTick = t;
+    dt = Math.min(0.5, Math.max(0, dt));
+    while (peaks.length && peaks[0].t < t - o.peakWin) peaks.shift();
+    if (lastT === null || t - lastT > 0.6) {               // 値が来ていない
+      runAcc = 0; lastRms = 0;
+      cur = { state: 'nodata', rms: 0, cadence: 0, peaks: 0, strong: 0 };
+      return events;
+    }
+    let s2 = 0, n = 0;
+    for (let i = 0; i < buf.length; i++) { if (buf[i].t >= t - o.rmsWin) { s2 += buf[i].v * buf[i].v; n++; } }
+    const rms = n ? Math.sqrt(s2 / n) : 0;
+    lastRms = rms;
+    const np = peaks.length;
+    let strong = 0;
+    for (let i = 0; i < np; i++) if (peaks[i].amp >= o.strongRatio * o.threshold) strong++;
+    const running = rms >= o.threshold && strong >= o.runPeaks;
+    const walking = !running && rms >= o.walkMin && np >= o.walkPeaks;
+    const state = running ? 'run' : walking ? 'walk' : 'still';
+    const quiet = t < suppressUntil;
+    // 走りが続いた時間（holdSec より多くはためない。間をあけている間にためすぎると、歩きにもどってから鳴ってしまうため）
+    if (running && !quiet) runAcc = Math.min(o.holdSec, runAcc + dt); else runAcc = Math.max(0, runAcc - dt * 2);
+    if (running && runAcc >= o.holdSec && t >= coolUntil && !quiet) {
+      events.push('run');
+      coolUntil = t + o.coolSec;
+      runAcc = 0; walkAcc = 0;
+      praiseUntil = t + o.praiseWindowSec;
+    } else if (praiseUntil > 0) {
+      if (t > praiseUntil) { praiseUntil = 0; walkAcc = 0; }
+      else if (!quiet) {
+        if (state === 'walk') walkAcc += dt;
+        else if (state === 'run') walkAcc = 0;
+        if (walkAcc >= o.praiseWalkSec) { events.push('praise'); praiseUntil = 0; walkAcc = 0; }
+      }
+    }
+    cur = { state: state, rms: rms, cadence: np / o.peakWin, peaks: np, strong: strong };
+    return events;
+  }
+  return {
+    opts: o, push: push, tick: tick, reset: reset,
+    set: function (x) { Object.assign(o, x); },
+    get: function () { return cur; },
+    setSuppress: function (until) { suppressUntil = until; }
+  };
+}
+/* はかった値から判定ラインを決める（歩きと走りの間の、かけ算の平均） */
+function calcThreshold(walk, run, fallback) {
+  let T, note = '';
+  if (walk > 0 && run > 0) {
+    if (run > walk * 1.25) T = Math.sqrt(walk * run);
+    else { T = walk * 1.3; note = '歩きと走りの差が小さいため、歩いていても鳴ることがあります。持たせる場所を変えると、差が大きくなることがあります。'; }
+  } else if (walk > 0) T = walk * 1.7;
+  else if (run > 0) T = run * 0.6;
+  else T = fallback || 4.5;
+  return { T: Math.min(12, Math.max(1.5, Math.round(T * 10) / 10)), note: note };
+}
+// === DETECTOR END ===
+
+const det = createDetector();
+function applyDet() { det.set({ threshold: cfg.threshold, holdSec: cfg.holdSec, coolSec: cfg.coolSec }); }
+applyDet();
+
+/* ========== 絵（廊下・子どもの絵・はなまる） ========== */
+function hallSVG() {
+  return '<svg class="hall" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<rect class="h-floor" x="0" y="0" width="400" height="800"/>' +
+    '<path class="h-seam" d="M200 320L-74 800M200 320L63 800M200 320L337 800M200 320L474 800M0 418H400M0 462H400M0 532H400M0 640H400"/>' +
+    '<polygon class="h-ceil" points="0,0 400,0 400,87 260,250 140,250 0,87"/>' +
+    '<polygon class="h-wl" points="0,87 140,250 140,390 0,553"/>' +
+    '<polygon class="h-wr" points="400,87 260,250 260,390 400,553"/>' +
+    '<polygon class="h-back" points="140,250 260,250 260,390 140,390"/>' +
+    '<polygon class="h-door" points="24,230 64,250 64,479 24,525"/>' +
+    '<polygon class="h-door" points="92,265 114,276 114,420 92,446"/>' +
+    '<polygon class="h-door" points="376,230 336,250 336,479 376,525"/>' +
+    '<polygon class="h-door" points="308,265 286,276 286,420 308,446"/>' +
+    '<polygon class="h-light" points="111,8 289,8 280,40 120,40"/>' +
+    '<polygon class="h-light" points="134,90 266,90 259,112 141,112"/>' +
+    '<polygon class="h-light" points="154,160 246,160 242,172 158,172"/>' +
+    '<polygon class="h-light" points="167,205 233,205 231,211 169,211"/>' +
+    '<rect class="h-win" x="168" y="268" width="64" height="46" rx="3"/>' +
+    '<path class="h-base" d="M0 553L140 390H260L400 553"/>' +
+    '</svg>';
+}
+function figureSVG() {
+  return '<svg class="figure" viewBox="0 0 200 220" aria-hidden="true"><g class="body" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
+    '<g class="limb arm b back"><path d="M101 76L101 104L104 128" stroke-width="15"/></g>' +
+    '<g class="limb leg b back"><path d="M98 130L98 168L100 206" stroke-width="18"/></g>' +
+    '<path d="M104 70L98 130" stroke-width="32"/>' +
+    '<g class="limb leg f"><path d="M98 130L98 168L100 206" stroke-width="18"/></g>' +
+    '<g class="limb arm f"><path d="M101 76L101 104L104 128" stroke-width="15"/></g>' +
+    '<circle cx="108" cy="36" r="23" fill="currentColor" stroke="none"/>' +
+    '</g></svg>';
+}
+function polyPath(pts) {
+  let d = '', len = 0;
+  for (let i = 0; i < pts.length; i++) {
+    d += (i ? 'L' : 'M') + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(1);
+    if (i) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  }
+  return { d: d, len: Math.ceil(len) + 2 };
+}
+function hanamaruSVG() {
+  const cx = 100, cy = 100, spiral = [], petals = [];
+  for (let i = 0; i <= 150; i++) {            // まんなかの うずまき
+    const k = i / 150, a = k * 2.3 * 2 * Math.PI - Math.PI / 2, r = 5 + 29 * k;
+    spiral.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  for (let i = 0; i <= 480; i++) {            // まわりの 花びら（くるくる）
+    const t = i / 480 * 2 * Math.PI - Math.PI / 2;
+    petals.push([cx + 58 * Math.cos(t) + 15 * Math.cos(8 * t), cy + 58 * Math.sin(t) + 15 * Math.sin(8 * t)]);
+  }
+  const a = polyPath(spiral), b = polyPath(petals);
+  return '<svg class="hanamaru" viewBox="0 0 200 200" aria-hidden="true">' +
+    '<path d="' + a.d + '" data-len="' + a.len + '" stroke-width="7"/>' +
+    '<path d="' + b.d + '" data-len="' + b.len + '" stroke-width="7"/></svg>';
+}
+function drawHanamaru(svg) {
+  if (!svg) return;
+  let delay = 0;
+  svg.querySelectorAll('path').forEach((p, i) => {
+    const len = Number(p.dataset.len) || 1000;
+    if (p.getAnimations) p.getAnimations().forEach((an) => an.cancel());
+    p.style.strokeDasharray = len + ' ' + len;
+    if (reduceMotion() || !p.animate) { p.style.strokeDashoffset = '0'; return; }
+    const dur = i === 0 ? 650 : 1150;
+    p.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: dur, delay: delay, easing: 'cubic-bezier(.45,.05,.35,1)', fill: 'both' });
+    delay += dur - 60;
+  });
+}
+function injectArt() {
+  document.querySelectorAll('.hall-slot').forEach((el) => { el.innerHTML = hallSVG(); });
+  document.querySelectorAll('.actor').forEach((el) => { el.innerHTML = figureSVG() + hanamaruSVG(); });
+  $('startIcon').innerHTML = figureSVG();
+}
+function makeTouchIcon() {                    // ホーム画面に追加したときのアイコン
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 180;
+    const g = c.getContext('2d');
+    g.fillStyle = '#3D6A62'; g.fillRect(0, 0, 180, 180);
+    g.translate(28, 18); g.scale(0.62, 0.62);
+    g.strokeStyle = g.fillStyle = '#F4FAF7'; g.lineCap = g.lineJoin = 'round';
+    const limb = (px, py, deg, d, w, alpha) => {
+      g.save(); g.globalAlpha = alpha; g.translate(px, py); g.rotate(deg * Math.PI / 180); g.translate(-px, -py);
+      g.lineWidth = w; g.stroke(new Path2D(d)); g.restore();
+    };
+    limb(101, 76, -18, 'M101 76L101 104L104 128', 15, 0.55);
+    limb(98, 130, 16, 'M98 130L98 168L100 206', 18, 0.55);
+    g.lineWidth = 32; g.stroke(new Path2D('M104 70L98 130'));
+    limb(98, 130, -16, 'M98 130L98 168L100 206', 18, 1);
+    limb(101, 76, 18, 'M101 76L101 104L104 128', 15, 1);
+    g.beginPath(); g.arc(108, 36, 23, 0, Math.PI * 2); g.fill();
+    const url = c.toDataURL('image/png');
+    [['apple-touch-icon', url], ['icon', url]].forEach((x) => {
+      const l = document.createElement('link'); l.rel = x[0]; l.href = x[1]; document.head.appendChild(l);
+    });
+  } catch (e) { /* アイコンが作れなくても動きます */ }
+}
+
+/* ========== 音（チャイムはその場で作ります） ========== */
+const snd = { el: null, silent: '', chime: '', sparkle: '', tick: '', ttsReady: false };
+function wavURL(samples, rate) {
+  const n = samples.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE');
+  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) { const s = Math.max(-1, Math.min(1, samples[i])); v.setInt16(44 + i * 2, s < 0 ? s * 32768 : s * 32767, true); }
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+function synth(rate, notes) {
+  let end = 0;
+  notes.forEach((nt) => { end = Math.max(end, nt.at + nt.dur); });
+  const out = new Float32Array(Math.ceil((end + 0.05) * rate));
+  notes.forEach((nt) => {
+    const s0 = Math.floor(nt.at * rate), len = Math.floor(nt.dur * rate);
+    for (let i = 0; i < len && s0 + i < out.length; i++) {
+      const t = i / rate;
+      const env = Math.min(1, t / 0.008) * Math.exp(-t / nt.decay) * Math.min(1, (len - i) / (rate * 0.03));
+      const p = 2 * Math.PI * nt.f * t;
+      out[s0 + i] += nt.amp * env * (Math.sin(p) + 0.3 * Math.sin(2 * p) + 0.1 * Math.sin(3 * p));
+    }
+  });
+  let peak = 0;
+  for (let i = 0; i < out.length; i++) peak = Math.max(peak, Math.abs(out[i]));
+  if (peak > 0.9) for (let i = 0; i < out.length; i++) out[i] *= 0.9 / peak;
+  return out;
+}
+function buildSounds() {
+  const R = 22050;
+  snd.silent = wavURL(new Float32Array(Math.floor(R * 0.08)), R);
+  snd.chime = wavURL(synth(R, [                  // ピン ポーン
+    { f: 659.26, at: 0, dur: 0.75, decay: 0.4, amp: 0.55 },
+    { f: 523.25, at: 0.38, dur: 1.3, decay: 0.6, amp: 0.55 }
+  ]), R);
+  snd.sparkle = wavURL(synth(R, [                // キラリン（ほめるとき）
+    { f: 1046.5, at: 0, dur: 0.4, decay: 0.16, amp: 0.38 },
+    { f: 1318.5, at: 0.09, dur: 0.4, decay: 0.16, amp: 0.38 },
+    { f: 1568.0, at: 0.18, dur: 0.4, decay: 0.16, amp: 0.38 },
+    { f: 2093.0, at: 0.27, dur: 0.9, decay: 0.32, amp: 0.42 }
+  ]), R);
+  snd.tick = wavURL(synth(R, [{ f: 880, at: 0, dur: 0.12, decay: 0.05, amp: 0.5 }]), R);
+}
+/* iPhoneでは、ボタンをおした瞬間に一度音を出しておくと、あとで自動で鳴らせるようになる */
+function unlockAudio() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* 古い端末 */ }
+  if (!snd.el) { snd.el = new Audio(); snd.el.preload = 'auto'; snd.el.setAttribute('playsinline', ''); }
+  try { snd.el.src = snd.silent; const p = snd.el.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* なにもしない */ }
+  if (!snd.ttsReady && 'speechSynthesis' in window) {
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'ja-JP'; speechSynthesis.speak(u); snd.ttsReady = true; } catch (e) { /* なにもしない */ }
+  }
+}
+function playUrl(url, maxMs) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(false); return; }
+    if (!snd.el) { snd.el = new Audio(); snd.el.setAttribute('playsinline', ''); }
+    const el = snd.el;
+    let done = false;
+    const fin = (ok) => { if (done) return; done = true; clearTimeout(to); el.onended = el.onerror = null; resolve(ok); };
+    const to = setTimeout(() => fin(false), maxMs || 6000);
+    el.onended = () => fin(true);
+    el.onerror = () => fin(false);
+    try { el.src = url; const p = el.play(); if (p && p.catch) p.catch(() => fin(false)); } catch (e) { fin(false); }
+  });
+}
+
+/* ========== 読み上げ ========== */
+let jaVoices = [], lastUtter = null;
+function loadVoices() {
+  if (!('speechSynthesis' in window)) { setCheck('speech', 'bad', 'このブラウザは読み上げが使えません。「先生の声で流す」で録音した声を使ってください'); return; }
+  let all = [];
+  try { all = speechSynthesis.getVoices() || []; } catch (e) { all = []; }
+  jaVoices = all.filter((v) => /^ja([-_]|$)/i.test(v.lang || ''));
+  const sel = $('voiceSel');
+  sel.innerHTML = '<option value="">おまかせ</option>' + jaVoices.map((v) => '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '</option>').join('');
+  sel.value = jaVoices.some((v) => v.voiceURI === cfg.voiceURI) ? cfg.voiceURI : '';
+  if (jaVoices.length) setCheck('speech', 'ok', '');
+  else if (all.length) setCheck('speech', 'warn', '日本語の声が見つかりません。「注意をためす」で聞こえるか確かめてください');
+  else setCheck('speech', 'unknown', '「注意をためす」で、声が聞こえるか確かめてください');
+}
+async function speak(text) {
+  if (!text || !('speechSynthesis' in window)) return false;
+  const ss = window.speechSynthesis;
+  try { if (ss.speaking || ss.pending) { ss.cancel(); await sleep(80); } } catch (e) { /* なにもしない */ }
+  return new Promise((resolve) => {
+    let done = false;
+    const fin = (ok) => { if (!done) { done = true; clearTimeout(to); resolve(ok); } };
+    const to = setTimeout(() => fin(false), 2500 + text.length * 420 / cfg.rate);
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ja-JP'; u.rate = cfg.rate; u.pitch = 1.05; u.volume = 1;
+      if (cfg.voiceURI) { const v = jaVoices.find((x) => x.voiceURI === cfg.voiceURI); if (v) u.voice = v; }
+      u.onend = () => fin(true);
+      u.onerror = () => fin(false);
+      lastUtter = u;                               // iPhoneで途中で消えないように保持
+      ss.speak(u);
+      if (ss.paused) ss.resume();
+    } catch (e) { fin(false); }
+  });
+}
+async function sayKind(kind) {
+  if (cfg.useRec && recs[kind]) { const ok = await playUrl(recURL(kind), 8000); if (ok) return true; }
+  return speak(kind === 'alert' ? cfg.phrase : cfg.praisePhrase);
+}
+async function playAlertSound() {
+  if (cfg.chime) await playUrl(snd.chime, 2500);
+  for (let i = 0; i < cfg.repeat; i++) { if (i) await sleep(400); await sayKind('alert'); }
+}
+async function playPraiseSound() {
+  if (cfg.chime) await playUrl(snd.sparkle, 2000);
+  await sayKind('praise');
+}
+function buzz(pattern) {
+  if (!cfg.vibrate || !navigator.vibrate) return;
+  try { navigator.vibrate(pattern); } catch (e) { /* なにもしない */ }
+}
+
+/* ========== 動きセンサー ========== */
+const sensor = { on: false, listening: false, n: 0, lastAt: 0, startAt: 0 };
+function onMotion(e) {
+  let m = NaN;
+  const g = e.accelerationIncludingGravity;
+  if (g && g.x != null && g.y != null && g.z != null) m = Math.hypot(g.x, g.y, g.z);
+  else if (e.acceleration && e.acceleration.x != null) { const a = e.acceleration; m = 9.81 + Math.hypot(a.x, a.y || 0, a.z || 0); }
+  if (!isFinite(m)) return;
+  const t = nowS();
+  det.push(t, m);
+  sensor.n++; sensor.lastAt = t;
+}
+/* iPhoneでは、ボタンをおした処理の中ですぐに呼ぶ必要がある */
+function enableSensors() {
+  if (sensor.on) return Promise.resolve(true);
+  let p;
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') p = DeviceMotionEvent.requestPermission();
+    else p = Promise.resolve('granted');
+  } catch (err) { p = Promise.reject(err); }
+  const listen = () => {
+    if (!sensor.listening) { window.addEventListener('devicemotion', onMotion, { passive: true }); sensor.listening = true; }
+  };
+  // 「許可」の答えが得られなくても、念のため1秒だけ値が届くか見る
+  const probe = () => { listen(); const n0 = sensor.n; return sleep(1000).then(() => sensor.n > n0 + 5); };
+  return p.then((res) => { if (res === 'granted') { listen(); return true; } return probe(); }, probe)
+    .then((ok) => {
+      if (ok) {
+        sensor.on = true; sensor.startAt = nowS();
+        $('sensorBtn').hidden = true;
+        return true;
+      }
+      setCheck('motion', 'bad', '動きセンサーが許可されていません。iPhoneは Safari のタブを閉じて開きなおし、もう一度ボタンをおして「許可」を選びます。Androidは Chrome のサイトの設定で「モーション センサー」を許可します。');
+      toast('動きセンサーが使えませんでした');
+      return false;
+    });
+}
+
+/* ========== 画面をつけたままにする ========== */
+let wake = null;
+async function requestWake() {
+  if (!('wakeLock' in navigator)) return false;
+  try {
+    wake = await navigator.wakeLock.request('screen');
+    wake.addEventListener('release', () => { wake = null; });
+    setCheck('wake', 'ok', '');
+    return true;
+  } catch (e) {
+    setCheck('wake', 'warn', '画面をつけたままにできませんでした。端末の設定で自動ロックを「なし」にしてください');
+    return false;
+  }
+}
+function releaseWake() { try { if (wake) wake.release(); } catch (e) { /* なにもしない */ } wake = null; }
+
+/* ========== メインのくり返し（0.1秒ごと） ========== */
+let mode = 'setup', stalled = false;
+function loop() {
+  const t = nowS();
+  const evs = det.tick(t);
+  const cur = det.get();
+  if (sensor.on) {
+    if (sensor.n > 10 && checks.motion !== 'ok') setCheck('motion', 'ok', '');
+    const none = sensor.n === 0 ? t - sensor.startAt > 3 : t - sensor.lastAt > 3;
+    if (none && sensor.n === 0 && checks.motion !== 'bad') setCheck('motion', 'bad', 'センサーの値が届きません。スマホで、https:// のアドレスで開いてください');
+    stalled = none;
+  }
+  if (calib) calibStep(t, cur);
+  if (mode === 'monitor') monitorStep(evs);
+  else if (!calib) drawMeter(cur);
+}
+
+/* ========== 子どもの画面 ========== */
+const WATCH_TEXT = 'ろうかは あるこうね';
+let monState = 'watch', speakToken = 0, pausedUntil = 0;
+function setMon(s) {
+  monState = s;
+  const m = $('monitor');
+  m.dataset.state = s;
+  $('monText').textContent = s === 'alert' ? cfg.phrase : s === 'praise' ? cfg.praisePhrase : s === 'pause' ? 'いまは おやすみ' : WATCH_TEXT;
+  if (s !== 'pause') $('monSub').textContent = '';
+  m.querySelector('.figure').classList.toggle('walking', s === 'alert');
+  if (s === 'praise') drawHanamaru(m.querySelector('.hanamaru'));
+}
+function monitorStep(evs) {
+  $('beat').classList.toggle('stalled', stalled);
+  $('monWarn').hidden = !stalled;
+  if (pausedUntil) {
+    const left = pausedUntil - Date.now();
+    if (left <= 0) { resumeMonitor(); return; }
+    const s = Math.ceil(left / 1000);
+    $('monSub').textContent = 'あと ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    return;
+  }
+  for (const ev of evs) {
+    if (ev === 'run') doAlert();
+    else if (ev === 'praise' && cfg.praiseOn) doPraise();
+  }
+}
+async function doAlert() {
+  const my = ++speakToken;
+  det.setSuppress(nowS() + 12);
+  addLog('run');
+  setMon('alert');
+  buzz([220, 120, 220]);
+  await playAlertSound();
+  if (my !== speakToken) return;
+  det.setSuppress(nowS() + 0.4);
+  setTimeout(() => { if (my === speakToken && monState === 'alert') setMon('watch'); }, 2200);
+}
+async function doPraise() {
+  const my = ++speakToken;
+  det.setSuppress(nowS() + 10);
+  addLog('praise');
+  setMon('praise');
+  await playPraiseSound();
+  if (my !== speakToken) return;
+  det.setSuppress(nowS() + 0.4);
+  setTimeout(() => { if (my === speakToken && monState === 'praise') setMon('watch'); }, 2600);
+}
+function startMonitor() {
+  mode = 'monitor';
+  pausedUntil = 0; speakToken++;
+  det.reset(); applyDet();
+  det.setSuppress(nowS() + 5);                    // はじめの5秒は持たせる時間
+  document.body.classList.add('monitoring');
+  $('monitor').hidden = false;
+  setMon('watch');
+  addLog('start');
+  setTimeout(() => { if (mode === 'monitor') speak('みまもりを はじめます'); }, 300);
+}
+function endMonitor() {
+  mode = 'setup'; pausedUntil = 0; speakToken++;
+  try { speechSynthesis.cancel(); } catch (e) { /* なにもしない */ }
+  releaseWake();
+  $('monitor').hidden = true;
+  document.body.classList.remove('monitoring');
+  addLog('stop');
+  renderLog();
+}
+function pauseMonitor(min) {
+  pausedUntil = Date.now() + min * 60000; speakToken++;
+  try { speechSynthesis.cancel(); } catch (e) { /* なにもしない */ }
+  setMon('pause');
+  addLog('pause');
+}
+function resumeMonitor() {
+  pausedUntil = 0; speakToken++;
+  det.reset(); applyDet();
+  det.setSuppress(nowS() + 3);
+  setMon('watch');
+  addLog('resume');
+}
+
+/* 先生メニュー（かぎのボタンを2秒おしつづけると開く） */
+let menuTimer = 0, endArmed = false, endTimer = 0;
+function setupLongPress(btn, ms, done) {
+  const ring = btn.querySelector('.ring'), C = 207.35;
+  let start = 0, raf = 0, active = false;
+  const reset = () => { active = false; cancelAnimationFrame(raf); ring.style.strokeDashoffset = C; };
+  const step = () => {
+    if (!active) return;
+    const p = Math.min(1, (performance.now() - start) / ms);
+    ring.style.strokeDashoffset = C * (1 - p);
+    if (p >= 1) { reset(); done(); return; }
+    raf = requestAnimationFrame(step);
+  };
+  const begin = () => { if (active) return; active = true; start = performance.now(); raf = requestAnimationFrame(step); };
+  btn.addEventListener('pointerdown', (e) => { e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch (_) { /* なにもしない */ } begin(); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => btn.addEventListener(ev, reset));
+  btn.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); begin(); } });
+  btn.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === ' ') reset(); });
+  btn.addEventListener('contextmenu', (e) => e.preventDefault());
+  btn.addEventListener('click', (e) => e.preventDefault());
+}
+function openMenu() {
+  updateMenuInfo();
+  $('mResume').hidden = !pausedUntil;
+  $('mPauseRow').hidden = !!pausedUntil;
+  endArmed = false; $('mEnd').textContent = '終了して設定にもどる';
+  $('menu').hidden = false;
+  armMenuTimer();
+  setTimeout(() => $('mContinue').focus(), 30);
+}
+function armMenuTimer() { clearTimeout(menuTimer); menuTimer = setTimeout(closeMenu, 20000); }  // 20秒さわらなければ自動で閉じる
+function closeMenu() {
+  clearTimeout(menuTimer);
+  if ($('menu').hidden) return;
+  $('menu').hidden = true;
+  if (mode === 'monitor' && !pausedUntil) det.setSuppress(nowS() + 3);  // 子どもにもどす時間
+}
+function updateMenuInfo() {
+  const c = todayCounts();
+  $('menuInfo').textContent = 'きょうは ' + c.run + '回 声を出し、' + c.praise + '回 ほめました。';
+}
+
+/* ========== はかって合わせる ========== */
+let calib = null;
+const CAL_READY = 5, CAL_MEASURE = 8;
+function startCalib(kind) {
+  const ready = enableSensors();
+  unlockAudio();
+  ready.then((ok) => {
+    if (!ok) return;
+    calib = { kind: kind, phase: 'ready', t0: nowS(), t1: 0, vals: [], last: null };
+    $('calTitle').textContent = kind === 'walk' ? '歩いてはかる' : '走ってはかる';
+    $('calMsg').textContent = 'スマホを、子どもが持つのと同じ場所に入れて待ってください';
+    $('calBar').style.width = '0';
+    $('calib').hidden = false;
+    speak('じゅんびして ください');
+  });
+}
+function calibStep(t, cur) {
+  const c = calib;
+  if (c.phase === 'ready') {
+    const left = Math.max(0, Math.ceil(CAL_READY - (t - c.t0)));
+    if (left !== c.last) { c.last = left; $('calCount').textContent = left; if (left > 0 && left <= 3) playUrl(snd.tick, 500); }
+    if (t - c.t0 >= CAL_READY) {
+      c.phase = 'measure'; c.t1 = t;
+      $('calMsg').textContent = c.kind === 'walk' ? 'ふつうに 歩いてください' : '走ってください';
+      speak(c.kind === 'walk' ? 'あるいて ください' : 'はしって ください');
+    }
+  } else {
+    const m = t - c.t1;
+    $('calCount').textContent = Math.max(0, Math.ceil(CAL_MEASURE - m));
+    $('calBar').style.width = Math.min(100, m / CAL_MEASURE * 100) + '%';
+    if (m > 1.5 && cur.state !== 'nodata') c.vals.push({ rms: cur.rms, peaks: cur.peaks });
+    if (m >= CAL_MEASURE) finishCalib();
+  }
+}
+function finishCalib() {
+  const c = calib; calib = null;
+  $('calib').hidden = true;
+  const need = c.kind === 'walk' ? 2 : 3;
+  const xs = c.vals.filter((v) => v.peaks >= need).map((v) => v.rms).sort((a, b) => a - b);
+  const name = c.kind === 'walk' ? '歩き' : '走り';
+  if (xs.length < 15) {
+    speak('うまく はかれませんでした');
+    $('calResult').textContent = name + 'が うまくはかれませんでした。スマホを持って、もう一度ためしてください。';
+    return;
+  }
+  const q = (p) => xs[Math.min(xs.length - 1, Math.floor(p * (xs.length - 1)))];
+  if (c.kind === 'walk') cfg.walkLevel = Math.round(q(0.9) * 100) / 100;
+  else cfg.runLevel = Math.round(q(0.5) * 100) / 100;
+  const r = calcThreshold(cfg.walkLevel, cfg.runLevel, DEFAULTS.threshold);
+  cfg.threshold = r.T;
+  saveCfg(); applyDet(); renderSettings();
+  speak('おわりです');
+  $('calResult').textContent = calibText() + ' → 判定ラインを ' + r.T.toFixed(1) + ' にしました。' + (r.note ? '（' + r.note + '）' : '');
+  toast('判定ラインを ' + r.T.toFixed(1) + ' にしました');
+}
+function cancelCalib() {
+  calib = null; $('calib').hidden = true;
+  try { speechSynthesis.cancel(); } catch (e) { /* なにもしない */ }
+}
+function calibText() {
+  const parts = [];
+  if (cfg.walkLevel > 0) parts.push('歩き ' + cfg.walkLevel.toFixed(1));
+  if (cfg.runLevel > 0) parts.push('走り ' + cfg.runLevel.toFixed(1));
+  return 'はかった値：' + parts.join('、');
+}
+
+/* ========== 準備のチェック ========== */
+const checks = { https: 'unknown', motion: 'unknown', speech: 'unknown', wake: 'unknown', calib: 'unknown' };
+const checkMsg = {};
+const CHECK_LABEL = { https: 'https で開いている', motion: '動きセンサー', speech: '日本語の読み上げ', wake: '画面をつけたままにする', calib: '走りの見分け方を合わせた' };
+const CHECK_SR = { ok: '（OK）', warn: '（注意）', bad: '（使えません）', unknown: '（まだ確かめていません）' };
+function setCheck(k, st, msg) { checks[k] = st; checkMsg[k] = msg || ''; renderChecks(); }
+function renderChecks() {
+  document.querySelectorAll('#checks li').forEach((li) => {
+    const k = li.dataset.k, st = checks[k];
+    li.dataset.st = st;
+    li.innerHTML = '<i aria-hidden="true"></i><span>' + esc(CHECK_LABEL[k]) + '<span class="sr">' + CHECK_SR[st] + '</span>' +
+      (checkMsg[k] ? '<small>' + esc(checkMsg[k]) + '</small>' : '') + '</span>';
+  });
+}
+function renderCalibCheck() {
+  if (cfg.walkLevel > 0 || cfg.runLevel > 0) setCheck('calib', 'ok', calibText());
+  else setCheck('calib', 'warn', 'まだです（「ふつう」で動きます）。下の「はかって合わせる」がおすすめです');
+}
+
+/* ========== 設定画面の表示 ========== */
+const SCALE = 12;
+const STATE_JA = { nodata: 'センサーの値を待っています', still: 'とまっている', walk: 'あるいている', run: 'はしっている' };
+function drawMeter(cur) {
+  if (!sensor.on) return;
+  $('mFill').style.width = (Math.min(SCALE, cur.rms) / SCALE * 100) + '%';
+  $('mFill').dataset.s = cur.state;
+  $('mVal').textContent = cur.state === 'nodata' ? '' : 'ゆれ ' + cur.rms.toFixed(1);
+  $('mState').textContent = STATE_JA[cur.state];
+  $('mState').dataset.s = cur.state;
+}
+function renderZones() {
+  const w = det.opts.walkMin / SCALE * 100, t = cfg.threshold / SCALE * 100;
+  $('zStill').style.width = w + '%';
+  $('zWalk').style.left = w + '%'; $('zWalk').style.width = Math.max(0, t - w) + '%';
+  $('zRun').style.left = t + '%'; $('zRun').style.width = (100 - t) + '%';
+  $('lWalk').style.left = clamp((w + t) / 2, 22, 78) + '%';
+  $('lRun').style.left = clamp((t + 100) / 2, 30, 90) + '%';
+}
+function rateLabel(r) { return r < 0.8 ? 'ゆっくり' : r < 0.95 ? 'すこし ゆっくり' : r < 1.1 ? 'ふつう' : 'はやい'; }
+function renderSettings() {
+  document.querySelectorAll('.seg').forEach((seg) => {
+    const key = seg.dataset.key;
+    seg.querySelectorAll('button').forEach((b) => {
+      const v = Number(b.dataset.v);
+      const on = key === 'preset' ? Math.abs(cfg.threshold - v) < 0.05 : Math.abs(Number(cfg[key]) - v) < 1e-6;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  });
+  if (document.activeElement !== $('thr')) $('thr').value = cfg.threshold;
+  $('thrOut').textContent = cfg.threshold.toFixed(1);
+  renderZones();
+  ['phrase', 'praisePhrase'].forEach((k) => { if (document.activeElement !== $(k)) $(k).value = cfg[k]; });
+  document.querySelectorAll('.chips').forEach((box) => {
+    const k = box.dataset.for;
+    box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.textContent === cfg[k] ? 'true' : 'false'));
+  });
+  $('rate').value = cfg.rate;
+  $('rateOut').textContent = rateLabel(cfg.rate);
+  ['chime', 'vibrate', 'praiseOn', 'useRec'].forEach((k) => { $(k).checked = !!cfg[k]; });
+  $('recRows').hidden = !canRecord();
+  $('calClear').hidden = !(cfg.walkLevel > 0 || cfg.runLevel > 0);
+  renderCalibCheck();
+}
+
+/* ========== 記録 ========== */
+let logs = LS.get('logs', []);
+if (!Array.isArray(logs)) logs = [];
+const LOGNAME = { run: '走った（声を出した）', praise: 'ほめた', start: '見守り開始', stop: '見守り終了', pause: '休む', resume: '再開' };
+function addLog(k) {
+  logs.push({ t: Date.now(), k: k });
+  if (logs.length > 5000) logs.splice(0, logs.length - 5000);
+  LS.set('logs', logs);
+  if (!$('menu').hidden) updateMenuInfo();
+}
+const pad = (n) => String(n).padStart(2, '0');
+function dayKey(ms) { const d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function hms(ms) { const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
+function todayCounts() {
+  const k = dayKey(Date.now());
+  let run = 0, praise = 0;
+  logs.forEach((l) => { if (dayKey(l.t) === k) { if (l.k === 'run') run++; else if (l.k === 'praise') praise++; } });
+  return { run: run, praise: praise };
+}
+function renderLog() {
+  const c = todayCounts();
+  $('logToday').innerHTML = 'きょうは <b>' + c.run + '</b> 回 声を出し、<b>' + c.praise + '</b> 回 ほめました。';
+  // 7日間
+  const days = [], WD = '日月火水木金土';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i);
+    days.push({ key: dayKey(d.getTime()), label: (d.getMonth() + 1) + '/' + d.getDate(), wd: WD[d.getDay()], run: 0, praise: 0, today: i === 0 });
+  }
+  const idx = {}; days.forEach((d, i) => { idx[d.key] = i; });
+  logs.forEach((l) => { const i = idx[dayKey(l.t)]; if (i != null) { if (l.k === 'run') days[i].run++; else if (l.k === 'praise') days[i].praise++; } });
+  const max = Math.max(1, ...days.map((d) => Math.max(d.run, d.praise)));
+  $('week').setAttribute('role', 'img');
+  $('week').setAttribute('aria-label', '7日間の回数。' + days.map((d) => d.label + ' 声' + d.run + '回 ほめた' + d.praise + '回').join('、'));
+  $('week').innerHTML = days.map((d) =>
+    '<div class="day' + (d.today ? ' is-today' : '') + '"><div class="bars">' +
+    '<span class="bar run" style="height:' + (d.run / max * 64) + 'px">' + (d.run ? '<b>' + d.run + '</b>' : '') + '</span>' +
+    '<span class="bar praise" style="height:' + (d.praise / max * 64) + 'px">' + (d.praise ? '<b>' + d.praise + '</b>' : '') + '</span>' +
+    '</div><small>' + d.label + '<br>' + (d.today ? 'きょう' : d.wd) + '</small></div>').join('') +
+    (days.some((d) => d.run || d.praise) ? '' : '<p class="week-empty">見守りを使うと、ここに7日間の回数が出ます</p>');
+  // きょうの一覧
+  const k = dayKey(Date.now());
+  const items = logs.filter((l) => dayKey(l.t) === k).slice(-80).reverse();
+  $('logList').innerHTML = items.length
+    ? items.map((l) => '<li data-k="' + esc(l.k) + '"><time>' + hms(l.t) + '</time><span>' + esc(LOGNAME[l.k] || l.k) + '</span></li>').join('')
+    : '<li class="empty">きょうの記録はまだありません。</li>';
+}
+function downloadCSV() {
+  const rows = [['日付', '時刻', 'できごと']];
+  logs.forEach((l) => rows.push([dayKey(l.t).replace(/-/g, '/'), hms(l.t), LOGNAME[l.k] || l.k]));
+  const csv = '﻿' + rows.map((r) => r.join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'rouka-kiroku-' + dayKey(Date.now()) + '.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
+}
+
+/* ========== 先生の声の録音 ========== */
+const recs = { alert: LS.raw('rec-alert'), praise: LS.raw('rec-praise') };
+let recNow = null;
+const recCache = {};
+function recURL(kind) {                        // 保存してある録音を、再生しやすい形にする
+  const d = recs[kind];
+  if (!d) return '';
+  if (recCache[kind] && recCache[kind].src === d) return recCache[kind].url;
+  try {
+    const comma = d.indexOf(','), mime = d.slice(5, comma).split(';')[0] || 'audio/mp4';
+    const bin = atob(d.slice(comma + 1)), u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([u8], { type: mime }));
+    if (recCache[kind]) URL.revokeObjectURL(recCache[kind].url);
+    recCache[kind] = { src: d, url: url };
+    return url;
+  } catch (e) { return d; }
+}
+function canRecord() { return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
+function pickMime() {
+  const list = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+  for (const m of list) { try { if (MediaRecorder.isTypeSupported(m)) return m; } catch (e) { /* つぎへ */ } }
+  return '';
+}
+async function startRec(kind) {
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (e) { toast('マイクが使えません。ブラウザの設定でマイクを許可してください'); return; }
+  const mime = pickMime();
+  let rec;
+  try { rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream); }
+  catch (e) { stream.getTracks().forEach((t) => t.stop()); toast('このブラウザでは録音できません'); return; }
+  const chunks = [];
+  rec.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    recNow = null;
+    const blob = new Blob(chunks, { type: rec.mimeType || mime || 'audio/mp4' });
+    const fr = new FileReader();
+    fr.onload = () => {
+      recs[kind] = String(fr.result);
+      toast(LS.setRaw('rec-' + kind, recs[kind]) ? '録音しました。この声を使います' : '録音しました（保存できないため、ページを閉じると消えます）');
+      cfg.useRec = true; saveCfg(); renderSettings();
+      renderRec();
+    };
+    fr.readAsDataURL(blob);
+    renderRec();
+  };
+  rec.start();
+  recNow = { kind: kind, rec: rec, timer: setTimeout(stopRec, 5000) };
+  renderRec();
+}
+function stopRec() {
+  if (!recNow) return;
+  clearTimeout(recNow.timer);
+  try { recNow.rec.stop(); } catch (e) { recNow = null; renderRec(); }
+}
+function renderRec() {
+  const ok = canRecord();
+  $('recNo').hidden = ok;
+  $('recRows').hidden = !ok;
+  document.querySelectorAll('.rec-row').forEach((row) => {
+    const kind = row.dataset.kind, has = !!recs[kind], on = !!(recNow && recNow.kind === kind);
+    const rb = row.querySelector('.rec-btn');
+    rb.textContent = on ? '止める' : has ? '録りなおす' : '録音';
+    rb.dataset.on = on ? 'true' : 'false';
+    rb.disabled = !!(recNow && !on);
+    row.querySelector('.play-btn').disabled = !has || on;
+    row.querySelector('.del-btn').disabled = !has || on;
+    row.querySelector('small').textContent = on ? '録音中…（5秒まで）' : has ? '録音あり' : 'まだありません';
+  });
+}
+
+/* ========== 小さなお知らせ ========== */
+let toastTimer = 0;
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ========== 見本（右上の小さな画面） ========== */
+let demoBusy = false;
+async function demoPreview(kinds) {
+  if (demoBusy) return;
+  demoBusy = true;
+  const pv = $('preview'), fig = pv.querySelector('.figure');
+  for (const k of kinds) {
+    pv.dataset.state = k;
+    fig.classList.toggle('walking', k === 'alert');
+    if (k === 'praise') drawHanamaru(pv.querySelector('.hanamaru'));
+    await sleep(k === 'praise' ? 2600 : 2400);
+  }
+  pv.dataset.state = 'watch'; fig.classList.remove('walking');
+  demoBusy = false;
+}
+
+/* ========== ボタンなどのつなぎこみ ========== */
+function bindUI() {
+  $('startBtn').addEventListener('click', () => {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    const ready = enableSensors();               // ← いちばん先に呼ぶ（iPhoneの「許可」の確認）
+    unlockAudio();
+    requestWake();
+    ready.then((ok) => { if (ok) startMonitor(); else releaseWake(); });
+  });
+  $('sensorBtn').addEventListener('click', () => { enableSensors(); unlockAudio(); });
+  $('preview').addEventListener('click', () => demoPreview(['alert', 'praise']));
+
+  document.querySelectorAll('.seg').forEach((seg) => {
+    seg.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      const key = seg.dataset.key, v = Number(b.dataset.v);
+      if (key === 'preset') cfg.threshold = v; else cfg[key] = v;
+      saveCfg(); applyDet(); renderSettings();
+    });
+  });
+  $('thr').addEventListener('input', () => {
+    let v = Math.round(Number($('thr').value) * 10) / 10;
+    if (v < 1.5) { v = 1.5; $('thr').value = v; }
+    cfg.threshold = v; applyDet();
+    $('thrOut').textContent = v.toFixed(1);
+    renderZones();
+    document.querySelectorAll('.seg[data-key=preset] button').forEach((b) => b.setAttribute('aria-pressed', Math.abs(v - Number(b.dataset.v)) < 0.05 ? 'true' : 'false'));
+  });
+  $('thr').addEventListener('change', saveCfg);
+
+  ['phrase', 'praisePhrase'].forEach((k) => {
+    const el = $(k);
+    el.addEventListener('input', () => { if (el.value.trim()) { cfg[k] = el.value.trim(); saveCfg(); renderSettings(); } });
+    el.addEventListener('change', () => { if (!el.value.trim()) { cfg[k] = DEFAULTS[k]; saveCfg(); } renderSettings(); });
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.blur(); });
+  });
+  document.querySelectorAll('.chips').forEach((box) => {
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      cfg[box.dataset.for] = b.textContent; saveCfg(); renderSettings();
+    });
+  });
+  $('voiceSel').addEventListener('change', () => { cfg.voiceURI = $('voiceSel').value; saveCfg(); });
+  $('rate').addEventListener('input', () => { cfg.rate = Number($('rate').value); $('rateOut').textContent = rateLabel(cfg.rate); });
+  $('rate').addEventListener('change', saveCfg);
+  ['chime', 'vibrate', 'praiseOn', 'useRec'].forEach((k) => {
+    $(k).addEventListener('change', () => { cfg[k] = $(k).checked; saveCfg(); renderSettings(); renderRec(); });
+  });
+
+  $('testAlert').addEventListener('click', () => { unlockAudio(); playAlertSound(); demoPreview(['alert']); });
+  $('testPraise').addEventListener('click', () => { unlockAudio(); playPraiseSound(); demoPreview(['praise']); });
+
+  $('calWalk').addEventListener('click', () => startCalib('walk'));
+  $('calRun').addEventListener('click', () => startCalib('run'));
+  $('calCancel').addEventListener('click', cancelCalib);
+  $('calClear').addEventListener('click', () => {
+    cfg.walkLevel = 0; cfg.runLevel = 0; cfg.threshold = DEFAULTS.threshold;
+    saveCfg(); applyDet(); renderSettings();
+    $('calResult').textContent = 'はかった値を消して、判定ラインを「ふつう」にもどしました。';
+  });
+
+  document.querySelectorAll('.rec-row').forEach((row) => {
+    const kind = row.dataset.kind;
+    row.querySelector('.rec-btn').addEventListener('click', () => { if (recNow) stopRec(); else startRec(kind); });
+    row.querySelector('.play-btn').addEventListener('click', () => { if (recs[kind]) playUrl(recURL(kind), 8000); });
+    row.querySelector('.del-btn').addEventListener('click', () => {
+      if (!confirm((kind === 'alert' ? '注意の声' : 'ほめる声') + 'の録音を消しますか？')) return;
+      recs[kind] = null; LS.del('rec-' + kind); renderRec();
+    });
+  });
+
+  $('csvBtn').addEventListener('click', downloadCSV);
+  $('clearLog').addEventListener('click', () => {
+    if (!confirm('記録をすべて消しますか？（元にもどせません）')) return;
+    logs = []; LS.set('logs', logs); renderLog();
+  });
+
+  setupLongPress($('teacherBtn'), 2000, openMenu);
+  $('menu').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) { if (e.target === $('menu')) closeMenu(); return; }
+    armMenuTimer();
+    const act = b.dataset.act;
+    if (act === 'continue') closeMenu();
+    else if (act === 'p10' || act === 'p30') { pauseMonitor(act === 'p10' ? 10 : 30); closeMenu(); }
+    else if (act === 'resume') { closeMenu(); resumeMonitor(); }
+    else if (act === 'end') {
+      if (!endArmed) {
+        endArmed = true; b.textContent = 'もう一度おすと終了します';
+        clearTimeout(endTimer); endTimer = setTimeout(() => { endArmed = false; b.textContent = '終了して設定にもどる'; }, 4000);
+      } else { clearTimeout(menuTimer); $('menu').hidden = true; endMonitor(); }
+    }
+  });
+
+  // 子どもの画面では、拡大やスクロールをさせない
+  $('monitor').addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('gesturestart', (e) => { if (mode === 'monitor') e.preventDefault(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    try { speechSynthesis.cancel(); } catch (e) { /* なにもしない */ }
+    if (mode === 'monitor') { requestWake(); det.reset(); applyDet(); det.setSuppress(nowS() + 3); }
+  });
+}
+
+/* ========== はじめる ========== */
+function init() {
+  buildSounds();
+  injectArt();
+  makeTouchIcon();
+  if (window.isSecureContext) setCheck('https', 'ok', '');
+  else { $('httpsBar').hidden = false; setCheck('https', 'bad', 'GitHub Pages など https:// のアドレスで開いてください'); }
+  setCheck('motion', 'unknown', '下の「センサーをオンにして見る」で確かめられます');
+  if ('wakeLock' in navigator) setCheck('wake', 'ok', '見守り中は、画面をつけたままにします');
+  else setCheck('wake', 'warn', 'この端末では自動でできません。端末の設定で自動ロックを「なし」にしてください');
+  loadVoices();
+  if ('speechSynthesis' in window) {
+    if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    else speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  bindUI();
+  renderSettings();
+  renderRec();
+  renderLog();
+  setInterval(loop, 100);
+}
+init();
+
+// 動作確認用（アプリの動きには関係しません）
+window.__rouka = {
+  det: det, cfg: cfg, calcThreshold: calcThreshold, onMotion: onMotion,
+  get mode() { return mode; }, get monState() { return monState; }, get logs() { return logs; }
+};
+})();
+</script>
+</body>
+</html>
